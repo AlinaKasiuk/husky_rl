@@ -14,13 +14,15 @@ import roslaunch
 import subprocess
 import time
 import numpy as np
+import math
 
 from gym import utils, spaces
 from gym.utils import seeding
 
 from envs.gazebo_env import gazebo_env
 
-from geometry_msgs.msg import Point, Twist, PoseStamped, Pose
+from geometry_msgs.msg import Point, Twist, PoseStamped, Pose, Vector3Stamped
+
 from std_srvs.srv import Empty
 
 # import ros features
@@ -35,7 +37,7 @@ class GazeboHuskyEnv(gazebo_env.GazeboEnv):
         
         self.speed = Twist()
         self.pub_vel=rospy.Publisher("/husky_velocity_controller/cmd_vel", Twist, queue_size = 1)
-        self.r = rospy.Rate(10)#10Hz
+        self.r = rospy.Rate(5)#10Hz
         
         self.unpause = rospy.ServiceProxy('/gazebo/unpause_physics', Empty) 
         self.pause = rospy.ServiceProxy('/gazebo/pause_physics', Empty)   
@@ -47,10 +49,29 @@ class GazeboHuskyEnv(gazebo_env.GazeboEnv):
         
         self._seed()
         
+        self.gps_vel_x = 0
+        self.gps_vel_y = 0
+        self.gps_vel_z = 0
+        
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]    
+    
+    def listener(self):
+        self.sub = rospy.Subscriber("/navsat/vel", Vector3Stamped, self.callback)
+
+
+    def callback(self, msg):
+        print("cALLBACK")
+        self.gps_vel_x = msg.vector.x
+        self.gps_vel_y = msg.vector.y
+        self.gps_vel_z = msg.vector.z
         
+    def get_vel(self):
+        real_vel = math.sqrt(self.gps_vel_x**2+self.gps_vel_y**2+self.gps_vel_z**2)
+        return real_vel
+        
+    
     def discretize_observation(self,data,new_ranges):
         discretized_ranges = []
         min_range = 0.2
@@ -76,8 +97,9 @@ class GazeboHuskyEnv(gazebo_env.GazeboEnv):
         except (rospy.ServiceException) as e:
             print ("/gazebo/unpause_physics service call failed")
 
+        
         if action == 0: #FORWARD
-            self.speed.linear.x = 1.0
+            self.speed.linear.x = 0.3
             self.speed.angular.z = 0.0
             self.pub_vel.publish(self.speed)
             self.r.sleep()

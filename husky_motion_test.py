@@ -20,31 +20,35 @@ def render():
         env.render(close=True)
 
 if __name__ == '__main__':
-    print("point 1")
     env = GazeboHuskyEnv()
-    print("point 2")
     outdir = '/tmp/gazebo_gym_experiments'
-    #env = monitor.Monitor(GazeboHuskyEnv(), outdir, force=True)
-#    plotter = liveplot.LivePlot(outdir)
+
     actions=range(env.action_space.n)
-    print("point 2")
 
     total_episodes = 2
-    highest_reward = 0
-
+    
+    # TODO: Fix: don't start doing actions until gazebo is loaded
+    input("Press Enter to continue...")
+    # TODO: Fix the error
+    env.listener()
     for x in range(total_episodes):
 
         env.reset()
-        print("point 3")
+        
+        print("Episode ", x, " of ", total_episodes)
 
         for i in range(200):
 
             # Pick a random action 
             i = random.choice(range(len(actions)))
-            print(actions[i])
+
             action = actions[i] 
             env.step(action)
-            print("action done")
+            real_vel = env.get_vel()
+            
+            print("action ", actions[i] ," done")
+            print("velocity ", real_vel)
+            
 
 #        if x%100==0:
 #            plotter.plot(env)

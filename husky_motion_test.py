@@ -45,9 +45,11 @@ if __name__ == '__main__':
             action = actions[i] 
             env.step(action)
             real_vel = env.get_vel()
+            points = env.get_cloud()
             
             print("action ", actions[i] ," done")
             print("velocity ", real_vel)
+            print(points)
             
 
 #        if x%100==0:

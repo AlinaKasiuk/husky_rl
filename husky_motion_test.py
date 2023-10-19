@@ -3,9 +3,12 @@ import gym
 import envs
 from envs.gazebo_husky_env import GazeboHuskyEnv
 import time
-import numpy
+import numpy as np
+import open3d as o3d
 import random
 import time
+from sklearn.preprocessing import normalize
+
 
 #import liveplot
 
@@ -45,11 +48,49 @@ if __name__ == '__main__':
             action = actions[i] 
             env.step(action)
             real_vel = env.get_vel()
-            points = env.get_cloud()
             
+            points = env.get_cloud()
+            np.set_printoptions(suppress=True)
+            
+            if points.size == 0:
+            	points = 0
+            else:
+            	points = np.round(points, 5)
+            	import numpy as np
+            	
+            	#TODO: Normalize the cloud
+            	
+            	#norm1 = points / np.linalg.norm(points)
+            	#norm2 = normalize(points[:,np.newaxis], axis=0).ravel()
+            	#print("norm")
+            	#print(np.all(norm1 == norm2))
+            	
+            	
+            	pcd = o3d.geometry.PointCloud()
+            	pcd.points = o3d.utility.Vector3dVector(points)
+            	voxel_grid=o3d.geometry.VoxelGrid.create_from_point_cloud(pcd,voxel_size=0.001)
+            
+            
+            #np.set_printoptions(threshold=sys.maxsize)
+            #text_file = open("Points.txt", "w")
+            #text_file.write(np.array2string(points))
+            #text_file.close()
+
+
             print("action ", actions[i] ," done")
             print("velocity ", real_vel)
             print(points)
+
+        # Initialize a visualizer object
+        vis = o3d.visualization.Visualizer()
+        # Create a window, name it and scale it
+        vis.create_window(window_name='Bunny Visualize', width=800, height=600)
+        # Add the voxel grid to the visualize
+        vis.add_geometry(voxel_grid)
+        # We run the visualizater
+        vis.run()
+        # Once the visualizer is closed destroy the window and clean up
+        vis.destroy_window()
             
 
 #        if x%100==0:

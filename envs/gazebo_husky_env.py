@@ -87,7 +87,7 @@ class GazeboHuskyEnv(gazebo_env.GazeboEnv):
     def get_cloud(self):
         if len(self.points) == 0:
             print("Converting an empty cloud")
-            return None
+            return np.empty(0)
         pcd_array = np.asarray(self.points)
         cloud = pcd_array[:, 0:3]
         return cloud  

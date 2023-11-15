@@ -31,13 +31,17 @@ if __name__ == '__main__':
     total_episodes = 2
     
     # TODO: Fix: don't start doing actions until gazebo is loaded
-    input("Press Enter to continue...")
+
     # TODO: Fix the error
-    env.listener()
+#    env.listener()
+    
     for x in range(total_episodes):
 
         env.reset()
         
+        env.listener()
+        
+        input("Press Enter to continue...")
         print("Episode ", x, " of ", total_episodes)
 
         for i in range(200):
@@ -50,41 +54,21 @@ if __name__ == '__main__':
             real_vel = env.get_vel()
             
             points = env.get_cloud()
-            np.set_printoptions(suppress=True)
+#            np.set_printoptions(suppress=True)
             
             if points.size == 0:
             	points = 0
-            	norm = 0
             else:
-            	#points = np.round(points, 5)
-            	
-            	#TODO: Normalize the cloud
-            	
-            	#max_points = np.array([np.max(np.absolute(points[0])), np.max(np.absolute(points[1])), np.max(np.absolute(points[2]))])
-            	#norm = points / np.max(max_points)
-            	#norm = points / 100
-            	
-            	#pcd = o3d.geometry.PointCloud()
-            	#pcd.points = o3d.utility.Vector3dVector(norm)
-            	#voxel_grid=o3d.geometry.VoxelGrid.create_from_point_cloud(pcd,voxel_size=0.001)
-            
-            
-            #np.set_printoptions(threshold=sys.maxsize)
-            #text_file = open("Points.txt", "w")
-            #text_file.write(np.array2string(points))
-            #text_file.close()
-            
-            	point_dir = "Points1/Point" + str(x) + "_" + str(i) + ".txt"
-            	points_to_txt = np.savetxt(point_dir, points, fmt="%.3f")
 
+#           	point_dir = "Points1/Point" + str(x) + "_" + str(i) + ".txt"
+#            	points_to_txt = np.savetxt(point_dir, points, fmt="%.3f")
 
             	print("action ", actions[i] ," done")
             	print("velocity ", real_vel)
-            	print(points)
-            	print("Normalized")
+            	print("point shape", points.shape)
             	print("___________________")
-            	#print(norm)
-            	#print("___________________")
+            	
+
 
         # Initialize a visualizer object
        # vis = o3d.visualization.Visualizer()

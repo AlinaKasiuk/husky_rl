@@ -34,14 +34,17 @@ if __name__ == '__main__':
 
     # TODO: Fix the error
 #    env.listener()
-    
+
+    input("Press Enter to continue...")    
+            
     for x in range(total_episodes):
 
         env.reset()
-        
+           
         env.listener()
         
-        input("Press Enter to continue...")
+
+
         print("Episode ", x, " of ", total_episodes)
 
         for i in range(200):
@@ -51,6 +54,7 @@ if __name__ == '__main__':
 
             action = actions[i] 
             env.step(action)
+            print("action ", actions[i] ," done")
             real_vel = env.get_vel()
             
             points = env.get_cloud()
@@ -63,12 +67,12 @@ if __name__ == '__main__':
 #           	point_dir = "Points1/Point" + str(x) + "_" + str(i) + ".txt"
 #            	points_to_txt = np.savetxt(point_dir, points, fmt="%.3f")
 
-            	print("action ", actions[i] ," done")
+            	
             	print("velocity ", real_vel)
             	print("point shape", points.shape)
             	print("___________________")
             	
-
+        env.close_listener()
 
         # Initialize a visualizer object
        # vis = o3d.visualization.Visualizer()

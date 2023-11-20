@@ -66,8 +66,30 @@ class GazeboHuskyEnv(gazebo_env.GazeboEnv):
         return [seed]    
     
     def listener(self):
+            
         self.sub = rospy.Subscriber("/navsat/vel", Vector3Stamped, self.callback_gps_vel)
-        self.cloud_sub = rospy.Subscriber("/os1/pointCloud", PointCloud2,self.callback_cloud)  
+        self.cloud_sub = rospy.Subscriber("/os1/pointCloud", PointCloud2,self.callback_cloud) 
+        
+        
+      
+        
+    def cb_once(self,msg):
+    	#do processing here
+    	self.sub.unregister()
+    	
+    def cb_once_cloud(self,msg):
+    	#do processing here
+    	self.cloud_sub.unregister()
+    	
+    def close_listener(self):
+        self.sub = rospy.Subscriber("/navsat/vel", Vector3Stamped, self.cb_once)
+        self.cloud_sub = rospy.Subscriber("/os1/pointCloud", PointCloud2, self.cb_once_cloud) 	
+        rospy.wait_for_service('/gazebo/pause_physics')
+        try:
+            #resp_pause = pause.call()
+            self.pause()
+        except (rospy.ServiceException) as e:
+            print ("/gazebo/pause_physics service call failed")
 
     def callback_cloud(self, ros_point_cloud):
         print("CALLBACK: PointCloud")

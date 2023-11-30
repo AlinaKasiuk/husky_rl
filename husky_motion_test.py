@@ -24,6 +24,7 @@ def render():
 
 if __name__ == '__main__':
     env = GazeboHuskyEnv()
+    
     outdir = '/tmp/gazebo_gym_experiments'
 
     actions=range(env.action_space.n)
@@ -36,6 +37,7 @@ if __name__ == '__main__':
 #    env.listener()
 
     input("Press Enter to continue...")    
+    env.pause()
             
     for x in range(total_episodes):
 
@@ -47,7 +49,7 @@ if __name__ == '__main__':
 
         print("Episode ", x, " of ", total_episodes)
 
-        for i in range(200):
+        for j in range(200):
 
             # Pick a random action 
             i = random.choice(range(len(actions)))
@@ -64,13 +66,13 @@ if __name__ == '__main__':
             	points = 0
             else:
 
-#           	point_dir = "Points1/Point" + str(x) + "_" + str(i) + ".txt"
-#            	points_to_txt = np.savetxt(point_dir, points, fmt="%.3f")
+                point_dir = "Points2/Point" + str(x) + "_" + str(j) + ".txt"
+                points_to_txt = np.savetxt(point_dir, points, fmt="%.3f")
 
             	
-            	print("velocity ", real_vel)
-            	print("point shape", points.shape)
-            	print("___________________")
+                print("velocity ", real_vel)
+                print("point shape", points.shape)
+                print("___________________")
             	
         env.close_listener()
 

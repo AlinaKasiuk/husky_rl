@@ -21,15 +21,15 @@ from gym.utils import seeding
 
 from envs.gazebo_env import gazebo_env
 
+from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point, Twist, PoseStamped, Pose, Vector3Stamped
+from sensor_msgs.msg import PointCloud2, PointField, NavSatFix
 
 from std_srvs.srv import Empty
 
-# import lidar point cloud
 
-from sensor_msgs.msg import PointCloud2, PointField
 import sensor_msgs.point_cloud2 as pc2
-from sensor_msgs.msg import PointCloud2, PointField
+
 from std_msgs.msg import Header
 
 
@@ -59,6 +59,14 @@ class GazeboHuskyEnv(gazebo_env.GazeboEnv):
         self.gps_vel_y = 0
         self.gps_vel_z = 0
         
+        self.x = 0
+        self.y = 0
+        self.z = 0
+        self.quat_x = 0
+        self.quat_y = 0
+        self.quat_z = 0
+        self.quat_w = 0     
+        
         self.points = list()
         
     def _seed(self, seed=None):
@@ -68,14 +76,27 @@ class GazeboHuskyEnv(gazebo_env.GazeboEnv):
     def listener(self):
             
         self.sub = rospy.Subscriber("/navsat/vel", Vector3Stamped, self.callback_gps_vel)
+        
         self.cloud_sub = rospy.Subscriber("/os1/pointCloud", PointCloud2,self.callback_cloud) 
         
+        self.pose_sub = rospy.Subscriber("/ground_truth/state", Odometry, self.callback_pose)
+        
+        rospy.wait_for_service('/gazebo/pause_physics')
+        try:
+            #resp_pause = pause.call()
+            self.pause()
+        except (rospy.ServiceException) as e:
+            print ("/gazebo/pause_physics service call failed")        
         
       
         
     def cb_once(self,msg):
     	#do processing here
     	self.sub.unregister()
+
+    def cb_once_pose(self,msg):
+    	#do processing here
+    	self.pose_sub.unregister()
     	
     def cb_once_cloud(self,msg):
     	#do processing here
@@ -83,13 +104,9 @@ class GazeboHuskyEnv(gazebo_env.GazeboEnv):
     	
     def close_listener(self):
         self.sub = rospy.Subscriber("/navsat/vel", Vector3Stamped, self.cb_once)
+        self.pose_sub = rospy.Subscriber("/ground_truth/state", Odometry, self.cb_once_pose)
         self.cloud_sub = rospy.Subscriber("/os1/pointCloud", PointCloud2, self.cb_once_cloud) 	
-        rospy.wait_for_service('/gazebo/pause_physics')
-        try:
-            #resp_pause = pause.call()
-            self.pause()
-        except (rospy.ServiceException) as e:
-            print ("/gazebo/pause_physics service call failed")
+
 
     def callback_cloud(self, ros_point_cloud):
         print("CALLBACK: PointCloud")
@@ -102,6 +119,21 @@ class GazeboHuskyEnv(gazebo_env.GazeboEnv):
         self.gps_vel_y = msg.vector.y
         self.gps_vel_z = msg.vector.z
         
+    
+    def callback_pose(self, msg):
+        print("CALLBACK: pose") 
+        self.x = msg.pose.pose.position.x
+        self.y = msg.pose.pose.position.y
+        self.z = msg.pose.pose.position.z
+        
+        self.quat_x = msg.pose.pose.orientation.x
+        self.quat_y = msg.pose.pose.orientation.y
+        self.quat_z = msg.pose.pose.orientation.z 
+        self.quat_w = msg.pose.pose.orientation.w        
+        
+         #TODO callback_gps
+
+        
     def get_vel(self):
         real_vel = math.sqrt(self.gps_vel_x**2+self.gps_vel_y**2+self.gps_vel_z**2)
         return real_vel
@@ -113,6 +145,9 @@ class GazeboHuskyEnv(gazebo_env.GazeboEnv):
         pcd_array = np.asarray(self.points)
         cloud = pcd_array[:, 0:3]
         return cloud  
+        
+    def get_pose(self):
+        return np.array([self.x, self.y, self.z, self.quat_x, self.quat_y, self.quat_z, self.quat_w])     
    
         
     def step(self, action):
@@ -155,6 +190,25 @@ class GazeboHuskyEnv(gazebo_env.GazeboEnv):
 
 # TODO: check the movement with simple commanding
 #	 return state, reward, done, {}
+
+
+    def pause(self):
+        rospy.wait_for_service('/gazebo/pause_physics')
+        try:
+            #resp_pause = pause.call()
+            self.pause()
+        except (rospy.ServiceException) as e:
+            print ("/gazebo/pause_physics service call failed")
+
+            
+# TODO: get data from LiDAR
+            
+        rospy.wait_for_service('/gazebo/pause_physics')
+        try:
+            #resp_pause = pause.call()
+            self.pause()
+        except (rospy.ServiceException) as e:
+            print ("/gazebo/pause_physics service call failed")
 
     def reset(self):
 

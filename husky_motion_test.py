@@ -60,18 +60,28 @@ if __name__ == '__main__':
             real_vel = env.get_vel()
             
             points = env.get_cloud()
+            
+            pose = env.get_pose()
+            
 #            np.set_printoptions(suppress=True)
             
             if points.size == 0:
             	points = 0
             else:
 
-                point_dir = "Points2/Point" + str(x) + "_" + str(j) + ".txt"
+                point_dir = "Exp1/Points/Point" + str(x) + "_" + str(j) + ".txt"
                 points_to_txt = np.savetxt(point_dir, points, fmt="%.3f")
+                
+                pose_dir = "Exp1/Poses/Pose" + str(x) + "_" + str(j) + ".txt"
+                points_to_txt = np.savetxt(pose_dir, pose, fmt="%.3f")                
 
             	
-                print("velocity ", real_vel)
-                print("point shape", points.shape)
+                print("velocity: ", real_vel)
+                print("x: ", pose[0])
+                print("y: ", pose[1])
+                print("z: ", pose[2])
+                print("point shape: ", points.shape)
+                
                 print("___________________")
             	
         env.close_listener()

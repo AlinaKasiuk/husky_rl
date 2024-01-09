@@ -45,6 +45,7 @@ if __name__ == '__main__':
            
         env.listener()
         
+        env.trav_listener()
 
 
         print("Episode ", x, " of ", total_episodes)
@@ -63,28 +64,33 @@ if __name__ == '__main__':
             
             pose = env.get_pose()
             
+            labeled_points = env.get_labeled_cloud()
+            
 #            np.set_printoptions(suppress=True)
             
             if points.size == 0:
             	points = 0
             else:
 
-                point_dir = "Exp1/Points/Point" + str(x) + "_" + str(j) + ".txt"
-                points_to_txt = np.savetxt(point_dir, points, fmt="%.3f")
+                point_dir = "Exp3/Points/Point" + str(x) + "_" + str(j) + ".txt"
+                points_to_txt = np.savetxt(point_dir, labeled_points, fmt="%.3f")
                 
-                pose_dir = "Exp1/Poses/Pose" + str(x) + "_" + str(j) + ".txt"
+                pose_dir = "Exp3/Poses/Pose" + str(x) + "_" + str(j) + ".txt"
                 points_to_txt = np.savetxt(pose_dir, pose, fmt="%.3f")                
-
-            	
+                
+                            	
                 print("velocity: ", real_vel)
                 print("x: ", pose[0])
                 print("y: ", pose[1])
                 print("z: ", pose[2])
                 print("point shape: ", points.shape)
+                print("labeled point shape: ", labeled_points.shape)
                 
+
                 print("___________________")
             	
         env.close_listener()
+        env.close_trav_listener()
 
         # Initialize a visualizer object
        # vis = o3d.visualization.Visualizer()

@@ -68,6 +68,7 @@ class GazeboHuskyEnv(gazebo_env.GazeboEnv):
         self.quat_w = 0     
         
         self.points = list()
+        self.labeled_points = list()
         
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -86,9 +87,26 @@ class GazeboHuskyEnv(gazebo_env.GazeboEnv):
             #resp_pause = pause.call()
             self.pause()
         except (rospy.ServiceException) as e:
-            print ("/gazebo/pause_physics service call failed")        
-        
+            print ("/gazebo/pause_physics service call failed")  
+            
+          
+    def trav_listener(self):    
+     	self.trav_sub=rospy.Subscriber("trav_analysis", PointCloud2, self.callback_traversability)
+     
+    def cb_once_trav(self,msg):
+    	#do processing here
+    	self.trav_sub.unregister()  
+       
+    def close_trav_listener(self):
+        self.trav_sub = rospy.Subscriber("trav_analysis", PointCloud2, self.cb_once_trav)    	
       
+    def callback_cloud(self, ros_point_cloud):
+        print("CALLBACK: PointCloud")
+        field_names = [field.name for field in ros_point_cloud.fields]
+        self.points = list(pc2.read_points(ros_point_cloud, skip_nans=True, field_names=field_names))
+        
+        
+              
         
     def cb_once(self,msg):
     	#do processing here
@@ -108,10 +126,11 @@ class GazeboHuskyEnv(gazebo_env.GazeboEnv):
         self.cloud_sub = rospy.Subscriber("/os1/pointCloud", PointCloud2, self.cb_once_cloud) 	
 
 
-    def callback_cloud(self, ros_point_cloud):
-        print("CALLBACK: PointCloud")
+    def callback_traversability(self, ros_point_cloud):
+        print("CALLBACK: LabeledPointCloud")
         field_names = [field.name for field in ros_point_cloud.fields]
-        self.points = list(pc2.read_points(ros_point_cloud, skip_nans=True, field_names=field_names))
+        self.labeled_points = list(pc2.read_points(ros_point_cloud, skip_nans=True, field_names=field_names))
+        
 
     def callback_gps_vel(self, msg):
         print("CALLBACK: gps_vel")
@@ -145,6 +164,21 @@ class GazeboHuskyEnv(gazebo_env.GazeboEnv):
         pcd_array = np.asarray(self.points)
         cloud = pcd_array[:, 0:3]
         return cloud  
+        
+        
+        
+        
+        
+    def get_labeled_cloud(self):
+        if len(self.labeled_points) == 0:
+            print("LABELED: Converting an empty cloud")
+            return np.empty(0)
+            
+        pcd_array = np.asarray(self.labeled_points)
+        cloud = pcd_array[:, 0:4]
+        
+        #TODO: See how to get well RGB
+        return cloud
         
     def get_pose(self):
         return np.array([self.x, self.y, self.z, self.quat_x, self.quat_y, self.quat_z, self.quat_w])     

@@ -6,7 +6,8 @@ Created on Wed Oct 18 11:08:22 2023
 """
 import numpy as np
 import open3d as o3d
-
+from scipy.spatial.transform import Rotation
+#TODO: install skipy
 
 def observation(filename):
     point_cloud = np.loadtxt(filename, delimiter=' ')
@@ -21,12 +22,16 @@ def position(filename):
     return pose[:3], pose[3:6]
 
 points, colors = observation('Exp2/Points/Point0_0.txt')
-pose = position('Exp2/Poses/Pose0_0.txt')
+pose, orient = position('Exp2/Poses/Pose0_0.txt')
+R = Rotation.from_quat(orient)
+#pose = np.dot(pose, R)
 
 for i in range(1,100):
     new_points,  new_colors = observation('Exp2/Points/Point0_'+str(i)+'.txt')
     new_pose, new_orient = position('Exp2/Poses/Pose0_'+str(i)+'.txt')
     new_points += new_pose/500
+    
+    # Add orientation transformation
     points = np.append(points,new_points, axis=0)
     colors = np.append(colors,new_colors, axis=0)
 

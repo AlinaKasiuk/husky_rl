@@ -16,10 +16,17 @@ def observation(filename):
     points = point_cloud[:,:3]/500
     return points, colors
 
-points, colors = observation('Exp2/Points/Point0_0.txt')
+def position(filename):
+    pose =  np.loadtxt(filename, delimiter=' ')
+    return pose[:3], pose[3:6]
 
-for i in range(1,10):
+points, colors = observation('Exp2/Points/Point0_0.txt')
+pose = position('Exp2/Poses/Pose0_0.txt')
+
+for i in range(1,100):
     new_points,  new_colors = observation('Exp2/Points/Point0_'+str(i)+'.txt')
+    new_pose, new_orient = position('Exp2/Poses/Pose0_'+str(i)+'.txt')
+    new_points += new_pose/500
     points = np.append(points,new_points, axis=0)
     colors = np.append(colors,new_colors, axis=0)
 

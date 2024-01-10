@@ -12,20 +12,22 @@ def observation(filename):
     point_cloud = np.loadtxt(filename, delimiter=' ')
     point_cloud = point_cloud[((np.square(point_cloud[:, 0]) + np.square(point_cloud[:, 1])) < 400) &
                               (np.absolute(point_cloud[:, 2]) < 20)]
-    points = point_cloud/500
-    return points
+    colors = np.asarray( [np.array([95,158,160]) + np.array([11,-68,45])*int(a) for a in (point_cloud[:,3]==4284456608)])/255
+    points = point_cloud[:,:3]/500
+    return points, colors
 
-points = observation('Points.txt')
+points, colors = observation('Exp2/Points/Point0_0.txt')
 
-for i in range(1,199):
-    new_points = observation('Points2/Point0_'+str(i)+'.txt')
+for i in range(1,10):
+    new_points,  new_colors = observation('Exp2/Points/Point0_'+str(i)+'.txt')
     points = np.append(points,new_points, axis=0)
+    colors = np.append(colors,new_colors, axis=0)
 
 print(points.shape)
 
 pcd = o3d.geometry.PointCloud()
 pcd.points = o3d.utility.Vector3dVector(points)
-#pcd.colors = o3d.utility.Vector3dVector(colors)
+pcd.colors = o3d.utility.Vector3dVector(colors)
 
 
 

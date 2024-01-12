@@ -68,17 +68,19 @@ pose, orient = position('Exp2/Poses/Pose0_0.txt')
 #R = Rotation.from_quat(orient).as_matrix()
 #pose = np.dot(pose, R)
 
-for i in range(1,100):
+for i in range(1,10):
     new_points,  new_colors = observation('Exp2/Points/Point0_'+str(i)+'.txt')
     new_pose, new_orient = position('Exp2/Poses/Pose0_'+str(i)+'.txt')
     
     
     new_orient = np.append(new_orient[3], new_orient[:3])
+#    new_orient = new_orient[::-1]
     R = quaternion_rotation_matrix(new_orient)
     
     R_1 = Rotation.from_quat(new_orient)
     
-    new_points = np.dot(new_points + new_pose/500 , np.linalg.inv(R))
+    
+    new_points = np.dot(new_points + new_pose/500, np.linalg.inv(R))
     
     # Add orientation transformation
     points = np.append(points,new_points, axis=0)

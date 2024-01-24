@@ -8,6 +8,7 @@ from utils.general import select_action, get_str_device
 from utils.logger import BasicLogger
 
 from envs.gazebo_husky_env import GazeboHuskyEnv
+from envs.env_utils import ACTIONS
 from agents.agent import DeepQAgent
 
 import random #TODO: remove
@@ -27,7 +28,7 @@ def parse_opt():
     
     parser.add_argument('--a-eps', type=float, default=0, help='exploration epsilon') #TODO
     parser.add_argument('--weights', type=str, default='None', \
-        help='initial weights path. Default is None. If a valid path is provided, model parameter is not used.') #TODO: Check if this is needed
+        help='initial weights path. Default is None. If a valid path is provided, model parameter is not used.') 
     parser.add_argument('--device', default='cuda', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
     parser.add_argument('--project', default=os.path.join(ROOT, 'runs', 'train'), help='save to project/name')
     parser.add_argument('--name', default='exp', help='save to project/name')
@@ -48,13 +49,12 @@ def main(train_vars):
     # training
     batch_size = train_vars['batch_size']
     net_replace_iter = train_vars['net_update']
-    # create the agent TODO
-    agent = DeepQAgent(img_size, img_size, in_channels, \
-        num_classes=len(ACTIONS().actions()),
+    agent = DeepQAgent(num_classes=len(ACTIONS().actions()), \
         model_name=train_vars['model'],
         device=device,
         weight_path=train_vars['weights']
-    ) #TODO: change image to pointcloud
+    )
+        
     # replay memory
     replay_memory = []
     save_every = 100

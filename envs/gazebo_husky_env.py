@@ -24,7 +24,7 @@ from envs.gazebo_env import gazebo_env
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point, Twist, PoseStamped, Pose, Vector3Stamped
 from sensor_msgs.msg import PointCloud2, PointField, NavSatFix
-
+from envs.env_utils import ACTIONS
 from std_srvs.srv import Empty
 
 
@@ -49,7 +49,8 @@ class GazeboHuskyEnv(gazebo_env.GazeboEnv):
         self.pause = rospy.ServiceProxy('/gazebo/pause_physics', Empty)   
       
         self.reset_proxy = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
-        
+#        self.actions = ACTIONS().actions()
+#        self.action_space = spaces.Discrete(len(self.actions))
         self.action_space = spaces.Discrete(3) #F,L,R
         self.reward_range = (-np.inf, np.inf)
         

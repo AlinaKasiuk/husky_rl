@@ -1,5 +1,5 @@
-This project were termporary stopped due to problems with getting the wheel torque data from the simulator. 
-The neural network is not implemented
+This project was temporarily put on hold due to difficulties in obtaining wheel torque data from the simulator.
+The neural network has not yet been implemented.
 
 # Reinforcement Learning implementation for Husky robot with ROS and Gazebo
 
